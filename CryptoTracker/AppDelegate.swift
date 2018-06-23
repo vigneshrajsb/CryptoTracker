@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import LocalAuthentication
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -15,7 +16,21 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
-        // Override point for customization after application launch.
+        // Overriding the app launch controller
+        // creating the app without IB, so removed all boiler plate code
+        
+        window = UIWindow(frame: UIScreen.main.bounds)
+        if LAContext().canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: nil) && UserDefaults.standard.bool(forKey: "secure") {
+            let authVC = AuthViewController()
+            window?.rootViewController = authVC
+            
+        } else {
+        let cryptoVC = CryptoTableVC()
+        let navigationVC = UINavigationController(rootViewController: cryptoVC)
+        window?.rootViewController = navigationVC
+        }
+        window?.makeKeyAndVisible()
+        
         return true
     }
 
