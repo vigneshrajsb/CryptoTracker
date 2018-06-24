@@ -20,7 +20,7 @@ class CoinData {
     
     //marking it Private so the class cannot be initialized anywhere else in the app
     private init() {
-       let array = ["BTC","ETH","LTC", "PPC", "XRP", "XMR", "MAID", "BTS", "DOGE", "VRC", "BCN", "BLOCK", "XEM", "NXT", "BURST",  "XBC"]
+        let array = ["BTC","ETH","LTC", "PPC", "XRP", "XMR", "MAID", "BTS", "DOGE", "VRC", "BCN", "BLOCK", "XEM", "NXT", "BURST",  "XBC"]
         
         for symbol in array {
             let coin = Coin(symbol: symbol)
@@ -29,7 +29,7 @@ class CoinData {
     }
     
     func getPrices() {
-       
+        
         var listOfSymbols = ""
         for coin in coins {
             listOfSymbols += coin.symbol
@@ -38,22 +38,22 @@ class CoinData {
             }
         }
         
-      //DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
-            let url = "https://min-api.cryptocompare.com/data/pricemulti?fsyms=\(listOfSymbols)&tsyms=USD"
-            Alamofire.request(url).responseJSON { (response) in
-                if let json =  response.result.value as? [String:Any] {
-                    for coin in self.coins {
-                        if let price = json[coin.symbol] as? [String:Double] {
-                            if let priceForCoin = price["USD"] {
-                                coin.price = priceForCoin
-                                UserDefaults.standard.set(coin.price, forKey: coin.symbol)
-                            }
+        //DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+        let url = "https://min-api.cryptocompare.com/data/pricemulti?fsyms=\(listOfSymbols)&tsyms=USD"
+        Alamofire.request(url).responseJSON { (response) in
+            if let json =  response.result.value as? [String:Any] {
+                for coin in self.coins {
+                    if let price = json[coin.symbol] as? [String:Double] {
+                        if let priceForCoin = price["USD"] {
+                            coin.price = priceForCoin
+                            UserDefaults.standard.set(coin.price, forKey: coin.symbol)
                         }
                     }
                 }
-                self.delegate?.newPrices?()
             }
-       // }
+            self.delegate?.newPrices?()
+        }
+        // }
     }
     
     func convertDoubleToCurrencyFormat(double : Double) -> String {
@@ -106,24 +106,22 @@ class Coin {
     }
     
     func getHistoricalData()  {
-            self.historicalPrice = []
-            let url = "https://min-api.cryptocompare.com/data/histoday?fsym=\(self.symbol)&tsym=USD&limit=30"
-            Alamofire.request(url).responseJSON { (response) in
-                if let json = response.result.value as? [String:Any] {
-                    if let dailyPriceData = json["Data"] as? [[String:Double]] {
-                        for day in dailyPriceData {
-                            if let priceAtEOD = day["close"] {
-                                self.historicalPrice.append(priceAtEOD)
-                                UserDefaults.standard.set(self.historicalPrice, forKey: self.symbol + "history" )
-                                
-                              
-                            }
+        self.historicalPrice = []
+        let url = "https://min-api.cryptocompare.com/data/histoday?fsym=\(self.symbol)&tsym=USD&limit=30"
+        Alamofire.request(url).responseJSON { (response) in
+            if let json = response.result.value as? [String:Any] {
+                if let dailyPriceData = json["Data"] as? [[String:Double]] {
+                    for day in dailyPriceData {
+                        if let priceAtEOD = day["close"] {
+                            self.historicalPrice.append(priceAtEOD)
+                            UserDefaults.standard.set(self.historicalPrice, forKey: self.symbol + "history" )
                         }
                     }
-                    CoinData.shared.delegate?.newHistory?()
-                } else { fatalError("history JSON error")}
-                
-            }
+                }
+                CoinData.shared.delegate?.newHistory?()
+            } else { fatalError("history JSON error")}
+            
+        }
     }
     
     
