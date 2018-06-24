@@ -53,9 +53,11 @@ class CoinViewController: UIViewController, CoinDataDelegate {
         }
         let action = UIAlertAction(title: "Update", style: .default) { (action) in
             //code
+            guard let coin = self.coinSelected else { fatalError("ERROR! selected coin missing")}
             if let text = textField.text {
                 if let doubleText = Double(text) {
-                    self.coinSelected?.amount = doubleText
+                    coin.amount = doubleText
+                    UserDefaults.standard.set(coin.amount, forKey: coin.symbol + "amount")
                 }
             }
             self.newPrices()
@@ -92,7 +94,7 @@ class CoinViewController: UIViewController, CoinDataDelegate {
         worthLabelSize = 25.0
     }
     
-    fileprivate func setupChart() {
+     func setupChart() {
         chart.frame = CGRect(x: 0 , y: 0, width: view.safeAreaLayoutGuide.layoutFrame.width , height: chartHeight)
         //we used $1 for getting the value passed in as the chatt's y label
         chart.yLabelsFormatter = { CoinData.shared.convertDoubleToCurrencyFormat(double: $1)}

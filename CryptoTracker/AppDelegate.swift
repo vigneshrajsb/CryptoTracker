@@ -18,6 +18,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         // Overriding the app launch controller
         // creating the app without IB, so removed all boiler plate code
+    
+        print(NSSearchPathForDirectoriesInDomains(.libraryDirectory, .userDomainMask, true))
         
         window = UIWindow(frame: UIScreen.main.bounds)
         if LAContext().canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: nil) && UserDefaults.standard.bool(forKey: "secure") {

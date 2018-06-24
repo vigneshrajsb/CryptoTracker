@@ -20,7 +20,7 @@ class CoinData {
     
     //marking it Private so the class cannot be initialized anywhere else in the app
     private init() {
-       let array = ["BTC","ETH","LTC"]
+       let array = ["BTC","ETH","LTC", "PPC", "XRP", "XMR", "MAID", "BTS", "DOGE", "VRC", "BCN", "BLOCK", "XEM", "NXT", "BURST",  "XBC"]
         
         for symbol in array {
             let coin = Coin(symbol: symbol)
@@ -46,6 +46,7 @@ class CoinData {
                         if let price = json[coin.symbol] as? [String:Double] {
                             if let priceForCoin = price["USD"] {
                                 coin.price = priceForCoin
+                                UserDefaults.standard.set(coin.price, forKey: coin.symbol)
                             }
                         }
                     }
@@ -62,7 +63,7 @@ class CoinData {
         if let fancyPrice = formatter.string(from: NSNumber(floatLiteral: double)) {
             return fancyPrice
         } else {
-            return "ERROR!"
+            return "ERROR! converting double to current format"
         }
     }
     
@@ -91,24 +92,38 @@ class Coin {
     
     init(symbol : String) {
         self.symbol = symbol
+        
+        if let image = UIImage(named: symbol) {
+            self.image = image
+        }
+        
+        self.price = UserDefaults.standard.double(forKey: symbol)
+        self.amount = UserDefaults.standard.double(forKey: symbol + "amount")
+        if let history = UserDefaults.standard.array(forKey: symbol + "history") as? [Double] {
+            self.historicalPrice = history
+        }
+        
     }
     
     func getHistoricalData()  {
-        historicalPrice = []
-        let url = "https://min-api.cryptocompare.com/data/histoday?fsym=\(symbol)&tsym=USD&limit=30"
-        Alamofire.request(url).responseJSON { (response) in
-            if let json = response.result.value as? [String:Any] {
-                if let dailyPriceData = json["Data"] as? [[String:Double]] {
-                    for day in dailyPriceData {
-                        if let priceAtEOD = day["close"] {
-                            self.historicalPrice.append(priceAtEOD)
+            self.historicalPrice = []
+            let url = "https://min-api.cryptocompare.com/data/histoday?fsym=\(self.symbol)&tsym=USD&limit=30"
+            Alamofire.request(url).responseJSON { (response) in
+                if let json = response.result.value as? [String:Any] {
+                    if let dailyPriceData = json["Data"] as? [[String:Double]] {
+                        for day in dailyPriceData {
+                            if let priceAtEOD = day["close"] {
+                                self.historicalPrice.append(priceAtEOD)
+                                UserDefaults.standard.set(self.historicalPrice, forKey: self.symbol + "history" )
+                                
+                              
+                            }
                         }
                     }
-                }
-             CoinData.shared.delegate?.newHistory?()
-            } else { fatalError("history JSON error")}
-           
-        }
+                    CoinData.shared.delegate?.newHistory?()
+                } else { fatalError("history JSON error")}
+                
+            }
     }
     
     

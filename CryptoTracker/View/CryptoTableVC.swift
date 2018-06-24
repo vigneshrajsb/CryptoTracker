@@ -21,7 +21,6 @@ class CryptoTableVC: UITableViewController, CoinDataDelegate {
         headerHeight = view.safeAreaLayoutGuide.layoutFrame.height / 7
         worthLabelHeight = headerHeight * 0.35
         totalWorthLabelHeight = headerHeight * 0.65
-        
     }
     
     override func viewDidLoad() {
@@ -82,9 +81,7 @@ class CryptoTableVC: UITableViewController, CoinDataDelegate {
             cell.textLabel?.text = "\(coinInfo.symbol) - \(coinInfo.getFormattedCurrency()) - \(coinInfo.amount)"
         }
         
-        if let image = UIImage(named: coinInfo.symbol) {
-        cell.imageView?.image = image
-        }
+        cell.imageView?.image = coinInfo.image
         
         return cell
     }
